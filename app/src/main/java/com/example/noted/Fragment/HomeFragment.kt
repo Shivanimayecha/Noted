@@ -1,5 +1,6 @@
 package com.example.noted.Fragment
 
+//import com.example.noted.Adapter.NoteCatAdapter
 import android.app.Activity
 import android.app.Activity.RESULT_CANCELED
 import android.app.Activity.RESULT_OK
@@ -16,7 +17,6 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -28,14 +28,14 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-//import com.example.noted.Adapter.NoteCatAdapter
 import com.example.noted.R
 import com.example.noted.RoomDB.NoteCatDatabase
 import com.example.noted.RoomDB.NoteCategory
 import com.example.noted.Utils.toast
 import com.example.noted.databinding.FragmentHomeBinding
 import kotlinx.coroutines.launch
-import java.io.*
+import java.io.ByteArrayOutputStream
+import java.io.File
 import java.util.*
 
 class HomeFragment : BaseFragment() {
@@ -50,6 +50,8 @@ class HomeFragment : BaseFragment() {
 
     var picturePath = ""
     lateinit var selectedImage: Bitmap
+
+    var listData : List<NoteCategory>? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -189,6 +191,7 @@ class HomeFragment : BaseFragment() {
                     val uri = Uri.fromFile(finalFile)
                     picturePath = uri.path!!
                     Log.e("TAG", "capture img " + picturePath)
+
                     /*   picturePath = data.data.toString()
                        cat_imag.setImageBitmap(BitmapFactory.decodeFile(picturePath))
                        Log.e("TAG", "capture img " + picturePath)*/
@@ -350,17 +353,26 @@ class HomeFragment : BaseFragment() {
             cat_imag = dialog.findViewById<ImageView>(R.id.img_cat)
             edt_catTitle = dialog.findViewById<EditText>(R.id.edt_catTitle)
 
+            launch {
+                listData = NoteCatDatabase(context).getNoteCat().getNoteCategory()
+            }
+
+            if (listData!=null){
+                edt_catTitle.setText(listData!!.get(position).cat_title)
+                val myBitmap = BitmapFactory.decodeFile(listData!!.get(position).cat_image)
+                cat_imag.setImageBitmap(myBitmap)
+            }
+
             img_close.setOnClickListener { dialog.dismiss() }
             img_pic.setOnClickListener {
-
                 selectImage()
             }
 
-            noteCategory = NoteCategory()
+            /*noteCategory = NoteCategory()
             edt_catTitle.setText(noteCategory.cat_title)
             Glide.with(context)
                 .load(noteCategory.cat_image)
-                .into(cat_imag)
+                .into(cat_imag)*/
 
             btn_addCat.setOnClickListener {
 
